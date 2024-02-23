@@ -6,6 +6,7 @@ import { FrameRequest, getFrameMessage, getFrameHtmlResponse } from '@coinbase/o
 import { NextRequest, NextResponse } from 'next/server';
 import getHyperFrame from '../../api/frame/hyperframes';
 import { NEXT_PUBLIC_URL } from '../../config';
+import { checkIsFollowingFarcasterUser, CheckIsFollowingFarcasterUserInput, CheckIsFollowingFarcasterUserOutput, } from "@airstack/frames";
 
 const apiKey = process.env.AIRSTACK_API_KEY || '';
 init(apiKey);
@@ -45,11 +46,61 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   console.log('Received text:', text);
 
   // If everything is valid, call getHyperFrame to determine the next frame
-  return new NextResponse(getHyperFrame(frame as string, text || '', message?.button));
+  return new NextResponse(await getHyperFrame(frame as string, text || '', message?.button));
 }
 
 export async function POST(req: NextRequest): Promise<Response> {
+    // Extract the body from the POST request
+    const body: FrameRequest = await req.json();
+    const message = (body as any).message;
+  
+    // Extract the 'frame' query parameter to identify which frame sent the request
+    const url = new URL(req.url);
+    const queryParams = url.searchParams;
+    const frame = queryParams.get('frame');
+  
+    if (frame === 'guess' && message?.button === 'Select Chipotle') {
+      const fid = queryParams.get('fid');
+      const followsYou = await isUserFollowing(Number(fid), 5653); // Your FID
+
+      if (!followsYou) {
+          // User is not following you. Change the frame to prompt them to follow you.
+          return new NextResponse(getFrameHtmlResponse({
+              buttons: [{ label: 'Follow me to Select Chipotle!' }],
+              image: { src: `${NEXT_PUBLIC_URL}/sorry.png`, aspectRatio: '1:1' },
+          }));
+      } else {
+          // User is following you. Proceed to the password input frame.
+          return new NextResponse(getPasswordInputFrameHtmlResponse());
+      }
+    }
   return getResponse(req);
+}
+
+function getPasswordInputFrameHtmlResponse(): string {
+  // Return the HTML for the password input frame
+  return 'guess'
+}
+
+async function isUserFollowing(fid: number, yourFid: number): Promise<boolean> {
+  const input: CheckIsFollowingFarcasterUserInput = {
+      fid: fid,
+      isFollowing: [5653],
+  };
+  const { data, error }: CheckIsFollowingFarcasterUserOutput = await checkIsFollowingFarcasterUser(input);
+
+  if (error) {
+    throw new Error(error);
+  }
+  
+  // Check if data is not null and has at least one element
+  if (data && data.length > 0 && data[0].isFollowing) {
+    console.log("The user is following.");
+    return true; // The user is following
+  } else {
+    console.log("The user is not following.");
+    return false; // The user is not following
+  }
 }
 
 export const dynamic = 'force-dynamic';
