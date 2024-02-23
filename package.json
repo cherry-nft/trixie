@@ -12,7 +12,7 @@
   "author": "https://twitter.com/Zizzamia",
   "license": "MIT",
   "dependencies": {
-    "@coinbase/onchainkit": "0.8.0",
+    "@coinbase/onchainkit": "^0.8.0",
     "graphql": "14",
     "graphql-request": "6",
     "next": "13.5.6",
