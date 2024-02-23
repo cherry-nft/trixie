@@ -12,7 +12,9 @@
   "author": "https://twitter.com/Zizzamia",
   "license": "MIT",
   "dependencies": {
+    "@airstack/frames": "^1.0.4",
     "@coinbase/onchainkit": "^0.8.0",
+    "dotenv": "^16.4.5",
     "graphql": "14",
     "graphql-request": "6",
     "next": "13.5.6",

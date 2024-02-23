@@ -1,9 +1,14 @@
 // app > api / frame > route.ts
 
+require('dotenv').config();
+import { init } from "@airstack/frames";
 import { FrameRequest, getFrameMessage, getFrameHtmlResponse } from '@coinbase/onchainkit';
 import { NextRequest, NextResponse } from 'next/server';
 import getHyperFrame from '../../api/frame/hyperframes';
 import { NEXT_PUBLIC_URL } from '../../config';
+
+const apiKey = process.env.AIRSTACK_API_KEY || '';
+init(apiKey);
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
   let accountAddress: string | undefined = '';
