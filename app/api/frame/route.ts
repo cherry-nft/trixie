@@ -15,20 +15,16 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   let accountAddress: string | undefined = '';
   let text: string | undefined = '';
 
-  // Extract the body from the POST request
-  const body: FrameRequest = await req.json();
+  const body: FrameRequest = await req.json(); // Extract the body from the POST request
 
-  // Validate the frame message using OnchainKit
-  const { isValid, message } = await getFrameMessage(body, { neynarApiKey: 'NEYNAR_ONCHAIN_KIT' });
+  const { isValid, message } = await getFrameMessage(body, { neynarApiKey: 'NEYNAR_ONCHAIN_KIT' }); // Validate the frame message using OnchainKit
 
-  // Error handling if the frame parameter or button number is missing
-  console.error('Invalid frame message', message);
+  console.error('Invalid frame message', message);   // Error handling if the frame parameter or button number is missing
   if (!isValid) {
     return new NextResponse('Invalid frame message', { status: 400 });
   }
 
-  // Extract the 'frame' query parameter to identify which frame sent the request
-  const url = new URL(req.url);
+  const url = new URL(req.url);   // Extract the 'frame' query parameter to identify which frame sent the request
   const queryParams = url.searchParams;
   const frame = queryParams.get('frame');
 
@@ -59,19 +55,19 @@ export async function POST(req: NextRequest): Promise<Response> {
     const queryParams = url.searchParams;
     const frame = queryParams.get('frame');
   
-    if (frame === 'guess' && message?.button === 'Select Chipotle') {
+    if (frame === 'guess') {
       const fid = queryParams.get('fid');
-      const followsYou = await isUserFollowing(Number(fid), 5653); // Your FID
+      const followsYou = await isUserFollowing(Number(fid), 5653); 
 
       if (!followsYou) {
-          // User is not following you. Change the frame to prompt them to follow you.
-          return new NextResponse(getFrameHtmlResponse({
-              buttons: [{ label: 'Follow me to Select Chipotle!' }],
-              image: { src: `${NEXT_PUBLIC_URL}/sorry.png`, aspectRatio: '1:1' },
-          }));
+        // User is not following you. Change the frame to prompt them to follow you.
+        return new NextResponse(getFrameHtmlResponse({
+          buttons: [{ label: 'Follow me to Select Chipotle!' }],
+          image: { src: `${NEXT_PUBLIC_URL}/sorry.png`, aspectRatio: '1:1' },
+        }));
       } else {
-          // User is following you. Proceed to the password input frame.
-          return new NextResponse(getPasswordInputFrameHtmlResponse());
+        // User is following you. Proceed to the password input frame.
+        return new NextResponse(getPasswordInputFrameHtmlResponse());
       }
     }
   return getResponse(req);
@@ -82,10 +78,10 @@ function getPasswordInputFrameHtmlResponse(): string {
   return 'guess'
 }
 
-async function isUserFollowing(fid: number, yourFid: number): Promise<boolean> {
+async function isUserFollowing(fid: number, followingFid: number): Promise<boolean> {
   const input: CheckIsFollowingFarcasterUserInput = {
       fid: fid,
-      isFollowing: [5653],
+      isFollowing: [followingFid],
   };
   const { data, error }: CheckIsFollowingFarcasterUserOutput = await checkIsFollowingFarcasterUser(input);
 
