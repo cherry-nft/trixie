@@ -3,7 +3,10 @@ import { NEXT_PUBLIC_URL } from '../../config'; // Ensure this path is correct b
 
 interface HyperFrame {
   frame: string;
-  [key: number]: string | ((text: string) => string);
+  1: string | ((text: string) => string);
+  2?: string | ((text: string) => string);
+  3?: string | ((text: string) => string);
+  4?: string | ((text: string) => string);
 }
 
 // Define the checkForCorrectText function
@@ -12,7 +15,7 @@ function checkForCorrectText(room: string, text: string): boolean {
     return true;
   }
   return false;
-} 
+}
 
 
 // Define the getHyperFrame function
